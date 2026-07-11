@@ -1,0 +1,597 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+  <title>Introduction to Winserv</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta http-equiv="content-type" content="text/html; charset=iso8859-1">
+  <meta name="keywords" content="">
+  <meta name="description" content="">
+  <style type="text/css">
+UL, OL {  margin-bottom: 3px; }
+LI { margin-bottom: 2px; }
+
+
+/* paddings headers */
+FORM, H1, H2, H3, H4, H5 {
+  margin: 0px;
+  padding: 0px;
+}
+H1 { color:#20AA40; font-family: Verdana; padding-top:25px; padding-bottom:5px }
+H2 { color:#000080; font-family: Verdana; font-size: 20px; padding-top:20px; padding-bottom:5px }
+H3 { font-family: Verdana; font-size: 17px; padding-top:15px; padding-bottom:5px }
+H4 { font-family: Arial;   font-size: 16px; padding-top:15px; padding-bottom:5px }
+H5 { font-family: Arial;   font-size: 14px; padding-top:10px; padding-bottom:5px }
+
+/* overrall design */
+.ShHeader H1 { margin:0px; padding:0px; color:#000000; font-family:Arial; font-size:15px }
+.ShPage { background:#ffffff; padding:10px 10px 50px 10px;  }
+
+.ShCopyright {
+  font-size: 11px;
+  color: #AAAAAA;
+  text-align: right;
+  padding:25px 5px 5px 5px
+}
+
+
+/* fonts */
+BODY, TD, P, LI, .ShPage { font-family: Georgia, Verdana; font-size:95% }
+TEXTAREA { font-family: MonoCondensedCTT, Lucida Console, sans; color:#222222; line-height: 1.3em; }
+
+cite {color:#888800;font-style:normal;}
+.cite {color:#888800;font-style:normal;}
+.center { text-align: center; }
+.indent { margin-left: 40px; }
+
+.toc1 { margin-left:0px; padding-left:0px; font-weight:bold; list-style-type:none;  } 
+.toc2 { margin-left:0px; padding-left:15px; list-style-type:none;  } 
+.toc3 { margin-left:0px; padding-left:30px; list-style-type:none;  } 
+.toc4 { margin-left:0px; padding-left:45px; list-style-type:none;  } 
+.toc5 { margin-left:0px; padding-left:60px; list-style-type:none;  } 
+.toc6 { margin-left:0px; padding-left:75px; list-style-type:none;  }
+
+.Toc1 A, .Toc2 A, .Toc3 A, .Toc4 A, .Toc5 A, .Toc6 A
+ { text-decoration:none; color:#000000 }
+
+table.usertable {
+  border: 1px none;
+  border-collapse: collapse;
+}
+table.usertable tr td
+{
+  border-width: 1px;
+  border-color: black;
+  border-style: solid;
+  padding: 4px;
+  vertical-align: top;
+}
+table.dtable { width:100%; border: 0px none; border-collapse: collapse; }
+table.dtable tr td { vertical-align:top; border-width: 0px;  border-color: #999999;  border-style: none;  padding: 4px; }
+.code {
+  background: #FFFFFF;
+  border: solid #888888 2px;
+  font-family: "Courier New";
+  color: black;
+  font-size: 10pt;
+  width: 98%;
+  padding: 3px;
+}
+.micq1 { padding:2px; vertical-align:top; font-weight: bold; }
+.micq2 { padding:2px; vertical-align:top; font:10px tahoma, arial }
+.micq3 { padding:2px; vertical-align:top; width:100% }
+
+.nobr {white-space: nowrap}
+
+div.action           { margin:2px; background: #eeeeee }
+div.action-content   { padding:10px 10px 25px 10px; } 
+  </style>
+</head>
+<body>
+<div class="header">
+<h1>&nbsp; Winserv 1.04 Introduction
+</h1>
+</div>
+<div class="page"><!--notypo-->
+<fieldset><legend><strong> Contents </strong></legend>
+<div class="toc2"><a href="#h27-1">Command-line overview</a></div>
+<div class="toc4"><a href="#h27-2">winserv install service-name
+service-options program args ... </a></div>
+<div class="toc4"><a href="#h27-3">winserv configure service-name
+service-options program args ... </a></div>
+<div class="toc4"><a href="#h27-4">winserv uninstall service-name</a></div>
+<div class="toc4"><a href="#h27-5">winserv showconfig service-name1
+service-name2 ... </a></div>
+<div class="toc4"><a href="#h27-6">winserv stop service-name -nowait</a></div>
+<div class="toc4"><a href="#h27-7">winserv pause service-name -nowait</a></div>
+<div class="toc4"><a href="#h27-8">winserv continue service-name -nowait</a></div>
+<div class="toc4"><a href="#h27-9">winserv usercontrol service-name
+-code code</a></div>
+<div class="toc4"><a href="#h27-10">winserv start service-name args ...</a></div>
+<div class="toc4"><a href="#h27-11">winserv restart service-name args
+...</a></div>
+<div class="toc4"><a href="#h27-12">winserv status service-name1
+service-name2 ...</a></div>
+<div class="toc2"><a href="#h27-13">Service options</a></div>
+<div class="toc2"><a href="#h27-14">IPC methods</a></div>
+<div class="toc4"><a href="#h27-15">blind</a></div>
+<div class="toc4"><a href="#h27-16">stdio</a></div>
+<div class="toc4"><a href="#h27-17">qstdio</a></div>
+<div class="toc4"><a href="#h27-18">pipe</a></div>
+<div class="toc2"><a href="#h27-19">R</a><a href="#h27-19">emote
+service management</a><br>
+<a href="#h27-20">Winserv internals</a><br>
+<a href="#h27-21">TCL-specific notices</a><br>
+<a href="print#h27-22">Using Winserv with console programs</a><br>
+</div>
+</fieldset>
+<!--/notypo--><a name="h27-1"></a>
+<h3><span class="nobr">Command-line</span> overview</h3>
+The&nbsp;basic syntax for&nbsp;winserv invocation is&nbsp;the
+following:<!--notypo--> <textarea class="code" rows="2"
+ readonly="readonly">winserv subcommand service-name options [ args ...]</textarea><!--/notypo--><br>
+One&nbsp;notable exception to&nbsp;this rule is&nbsp;the <span
+ class="cite">help</span> subcommand that doesn't need
+any&nbsp;arguments (and ignores them, if&nbsp;any). Some subcommands
+(showconfig, status) accept more than one&nbsp;service name. <br>
+<a name="h27-2"></a>
+<h5>winserv install <span class="cite"><span class="nobr">service-name</span></span>
+<span class="cite"><span class="nobr">service-options</span></span> <span
+ class="cite">program</span> <span class="cite">args</span> ... </h5>
+<br>
+creates a&nbsp;service that runs <span class="cite">command</span>
+(any executable) when started and&nbsp;stops when the&nbsp;program
+exits. <span class="nobr">Command-line</span> parameters for&nbsp;the
+command may&nbsp;also be&nbsp;specified.<br>
+<a name="h27-3"></a>
+<h5>winserv configure <span class="cite"><span class="nobr">service-name</span></span>
+<span class="cite"><span class="nobr">service-options</span></span> <em><span
+ class="cite">program</span> <span class="cite">args</span> ...</em> </h5>
+<br>
+modifies various parameters for&nbsp;the service in&nbsp;SCM
+and&nbsp;registry databases. If&nbsp;the program is&nbsp;specified,
+it&nbsp;is stored in&nbsp;registry as&nbsp;a new&nbsp;program
+to&nbsp;be started by&nbsp;this <span class="nobr">winserv-based</span>
+service.<br>
+<a name="h27-4"></a>
+<h5>winserv uninstall <span class="cite"><span class="nobr">service-name</span></span></h5>
+<br>
+marks a&nbsp;service for&nbsp;deletion. When it&nbsp;is stopped
+and&nbsp;all its&nbsp;handles are&nbsp;closed, the&nbsp;service
+is&nbsp;removed from the&nbsp;SCM database.<br>
+<a name="h27-5"></a>
+<h5>winserv showconfig <span class="cite"><span class="nobr">service-name1</span></span>
+<em><span class="cite"><span class="nobr">service-name2</span></span>
+...</em> </h5>
+<br>
+shows the&nbsp;current service's parameters that
+may&nbsp;be&nbsp;modified with the&nbsp;<span class="cite">configure</span>
+subcommand. Some parameters make sense only for&nbsp;<span class="nobr">winserv-based</span>
+services, and&nbsp;they will not&nbsp;be&nbsp;shown for&nbsp;other
+services (see parameters description below).<br>
+<a name="h27-6"></a>
+<h5>winserv stop <span class="cite"><span class="nobr">service-name</span></span>
+<em>-nowait</em></h5>
+<a name="h27-7"></a>
+<h5>winserv pause <span class="cite"><span class="nobr">service-name</span></span>
+<em>-nowait</em></h5>
+<a name="h27-8"></a>
+<h5>winserv continue <span class="cite"><span class="nobr">service-name</span></span>
+<em>-nowait</em></h5>
+<a name="h27-9"></a>
+<h5>winserv usercontrol <span class="cite"><span class="nobr">service-name</span></span>
+-code <span class="cite">code</span></h5>
+<br>
+These subcommands send control signals to&nbsp;the running service. <em>-nowait</em>
+option means that the&nbsp;utility shouldn't wait until
+the&nbsp;service will report an&nbsp;appropriate status for&nbsp;the
+request (stopped for&nbsp;<span class="cite">stop</span>, paused
+for&nbsp;<span class="cite">pause</span>, running for&nbsp;<span
+ class="cite">continue</span>).<br>
+<a name="h27-10"></a>
+<h5>winserv start <span class="cite"><span class="nobr">service-name</span></span>
+<em><span class="cite">args</span> ...</em></h5>
+<br>
+Starts the&nbsp;service using the&nbsp;given <span class="nobr">command-line</span>
+arguments. If&nbsp;the service is&nbsp;<span class="nobr">winserv-based</span>,
+the&nbsp;arguments are&nbsp;stored in&nbsp;the <span class="cite">ServiceArgs</span>
+environment variable.<br>
+<a name="h27-11"></a>
+<h5>winserv restart <span class="cite"><span class="nobr">service-name</span></span>
+<em><span class="cite">args</span> ...</em></h5>
+<br>
+Restarts the&nbsp;service, i.e. stops it, waits for&nbsp;it&nbsp;to
+be&nbsp;stopped, and&nbsp;then starts it&nbsp;with the&nbsp;arguments
+given.<br>
+<a name="h27-12"></a>
+<h5>winserv status <span class="cite"><span class="nobr">service-name1</span></span>
+<em><span class="cite"><span class="nobr">service-name2</span></span>
+...</em></h5>
+<br>
+Prints out&nbsp;the current status of&nbsp;the services, one&nbsp;of:
+RUNNING, STOPPED, PAUSED, START_PENDING, PAUSE_PENDING,
+CONTINUE_PENDING, STOP_PENDING. The&nbsp;program's output
+is&nbsp;formatted like this: <br>
+<!--notypo--><textarea class="code" rows="4" readonly="readonly"
+    >Service: myservice
+Status: RUNNING
+Accepts: STOP</textarea><!--/notypo--><br>
+You&nbsp;see that the&nbsp;program prints the&nbsp;list of&nbsp;SCM
+control signals that the&nbsp;service can&nbsp;accept now. <br>
+<a name="h27-13"></a>
+<h3>Service options</h3>
+Using <span class="cite">install</span> and&nbsp;<span class="cite">configure</span>
+subcommands, you&nbsp;can specify parameters for&nbsp;the <span
+ class="nobr">newly-created</span> or&nbsp;configured service. Some
+of&nbsp;the service options require an&nbsp;argument. Here is&nbsp;the
+list of&nbsp;supported service options with arguments:<br>
+<ul>
+  <li> -displayname <span class="cite"><span class="nobr">user-visible</span>
+display name of&nbsp;the service</span><br>
+  </li>
+  <li> -description <span class="cite">the description of&nbsp;the
+service, usually one&nbsp;or&nbsp;two sentences</span><br>
+  </li>
+  <li> -binary <span class="cite">pathname of&nbsp;winserv.exe,
+defaults to&nbsp;the invoked instance's pathname</span><br>
+  </li>
+  <li> -ipcmethod <span class="cite">ipc method, one&nbsp;of: blind,
+pipe, stdio or&nbsp;qstdio</span><br>
+  </li>
+  <li> -start <span class="cite">start mode, one&nbsp;of&nbsp;auto,
+demand or&nbsp;disabled</span><br>
+  </li>
+  <li> -errorcontrol <span class="cite">error control mode,
+one&nbsp;of&nbsp;ignore, normal, severe or&nbsp;critical</span><br>
+  </li>
+  <li> -[no]expand </li>
+  <li> -[non]interactive </li>
+  <li> -loadordergroup <span class="cite"><span class="nobr">load-order</span>
+group name. See&nbsp;Platform SDK&nbsp;Documentation for&nbsp;details</span><br>
+  </li>
+  <li> -depends <span class="cite">service1,service2... &#8211; <span
+ class="nobr">comma-separated</span> list of&nbsp;other services</span><br>
+  </li>
+  <li> -user <span class="cite">the service will log&nbsp;on&nbsp;as
+this user</span><br>
+  </li>
+  <li> -password <span class="cite">the user's password</span></li>
+</ul>
+Winserv will refuse to&nbsp;set binary pathname and&nbsp;some <span
+ class="nobr">winserv-specific</span> options for&nbsp;<span
+ class="nobr">non-winserv</span> based services. Use&nbsp;<span
+ class="cite">-forceforeign</span> option to&nbsp;suppress this
+behavior.<br>
+<br>
+Use&nbsp;<span class="cite">-expand</span> option to&nbsp;store
+the&nbsp;application's <span class="nobr">command-line</span>
+in&nbsp;registry as&nbsp;a REG_EXPAND_SZ type of&nbsp;value.
+In&nbsp;this case, all&nbsp;references to&nbsp;environment variables
+will be&nbsp;<span class="nobr">auto-expanded</span> before starting
+the&nbsp;application:<br>
+<!--notypo--><textarea class="code" rows="2" readonly="readonly"
+    >winserv install myappsrv -expand %SystemRoot%\MyApp.exe %ServiceArgs%</textarea><!--/notypo--><br>
+Note that you&nbsp;have to&nbsp;use -expand with %ServiceArgs%
+to&nbsp;pass the&nbsp;service's <span class="nobr">command-line</span>
+parameters as&nbsp;extra arguments.<a name="h27-14"></a>
+<h3>IPC methods</h3>
+Winserv can&nbsp;communicate with the&nbsp;underlying application
+or&nbsp;script in&nbsp;three different ways, depending on&nbsp;<span
+ class="cite">-ipcmethod</span> option given to&nbsp;<span class="cite">install</span>
+or&nbsp;<span class="cite">configure</span> subcommands when
+the&nbsp;service was&nbsp;installed:<br>
+<a name="h27-15"></a>
+<h5>blind</h5>
+It's the&nbsp;simpliest case, when the&nbsp;application
+is&nbsp;terminated with TerminateProcess if&nbsp;the service
+is&nbsp;stopped. There is&nbsp;no way&nbsp;for the&nbsp;application
+to&nbsp;do any&nbsp;cleanup, and&nbsp;it&nbsp;can't write to&nbsp;the
+event log&nbsp;or&nbsp;accept pause/continue and&nbsp;other signals.
+This method must be&nbsp;used only for&nbsp;<span class="nobr">3rd-party</span>
+<span class="nobr">closed-source</span> applications that don't have
+any&nbsp;worthy data in&nbsp;memory that must be&nbsp;written
+on&nbsp;exit.<br>
+<a name="h27-16"></a>
+<h5>stdio</h5>
+Winserv forwards the&nbsp;SCM signals in&nbsp;the textual form
+to&nbsp;the applications's standard input, and&nbsp;the application
+reports its&nbsp;state on&nbsp;its standard output.
+The&nbsp;application can&nbsp;use special escape sequences
+to&nbsp;write to&nbsp;the eventlog with specific level (error,
+information, success, etc.), to&nbsp;signal its&nbsp;current status
+(paused, running), to&nbsp;declare what SCM&nbsp;control codes
+it&nbsp;accepts.<br>
+<br>
+Any&nbsp;<span class="nobr">plain-text</span> (escapeless) line from
+stdout is&nbsp;just written to&nbsp;the event log&nbsp;at&nbsp;the
+information level, and&nbsp;any line from stderr is&nbsp;written
+at&nbsp;the error level.<br>
+<br>
+This IPC&nbsp;method may&nbsp;be&nbsp;used for&nbsp;<span class="nobr">closed-source</span>
+application that doesn't know anything about winserv. In&nbsp;this case
+you&nbsp;won't be&nbsp;able to&nbsp;terminate the&nbsp;application with
+SCM&nbsp;control code (winserv stop); it&nbsp;must terminate
+by&nbsp;itself.<br>
+<a name="h27-17"></a>
+<h5>qstdio</h5>
+This method is&nbsp;similar to&nbsp;stdio, except that unescaped <span
+ class="nobr">plain-text</span> strings aren't forwarded to&nbsp;the
+event log. It&nbsp;may be&nbsp;useful if&nbsp;the application
+is&nbsp;too chatty.<br>
+<a name="h27-18"></a>
+<h5>pipe</h5>
+This method was&nbsp;designed especially for&nbsp;<span class="nobr">non-console</span>
+<a href="http://wiki.tcl.tk/tclkit" target="_blank" title=""
+ class="outerlink">tclkits</a>, where we&nbsp;don't have access
+to&nbsp;normal stdin or&nbsp;stdout, but&nbsp;only to&nbsp;their
+emulation. The&nbsp;application must open two&nbsp;named pipes
+on&nbsp;startup:<br>
+<!--notypo--><textarea class="code" rows="3" readonly="readonly"
+    >open \\\\.\\pipe\\winserv.scm.out.$service_name w+
+open \\\\.\\pipe\\winserv.scm.in.$service_name w+</textarea><!--/notypo--><br>
+and&nbsp;use the&nbsp;first one&nbsp;instead of&nbsp;stdout,
+and&nbsp;the second one&nbsp;instead of&nbsp;stdin. In&nbsp;all other
+aspects this method is&nbsp;equivalent to&nbsp;<span class="cite">stdio</span>.<br>
+<br>
+Don't change the&nbsp;order in&nbsp;which the&nbsp;pipes
+are&nbsp;opened! If&nbsp;you do&nbsp;it, the&nbsp;communication between
+winserv and&nbsp;the application can't be&nbsp;established.<br>
+<br>
+If&nbsp;the named pipes are&nbsp;not opened after 30 seconds, winserv
+will terminate the&nbsp;application.<br>
+<a name="h27-19"></a>
+<h3>Remote service management</h3>
+You&nbsp;can prepend \\Machine\ to&nbsp;the service name, thus
+specifying that you&nbsp;want to&nbsp;manage a&nbsp;service on&nbsp;a
+named remote machine. <span class="cite">For the&nbsp;subcommands that
+accept more than one&nbsp;service in&nbsp;their arguments,
+the&nbsp;machine name may&nbsp;be&nbsp;specified for&nbsp;the first
+service only</span>. All&nbsp;other services will be&nbsp;opened
+on&nbsp;that machine automatically.<br>
+<br>
+When you&nbsp;aren't a&nbsp;domain administrator, it's typical
+situation when you&nbsp;are able to&nbsp;access remote service control
+manager, but&nbsp;unable to&nbsp;read remote registry database. Winserv
+will do&nbsp;the best it&nbsp;can. When you&nbsp;use <span class="cite">winserv
+showconfig</span> to&nbsp;see the&nbsp;service's parameters, most
+of&nbsp;them will be&nbsp;retrieved from the&nbsp;service control
+manager, and&nbsp;the warning message will be&nbsp;printed to&nbsp;let
+you&nbsp;know that the&nbsp;remote registry was&nbsp;inaccessible.<br>
+<div class="header">
+<h3><a name="h27-20"></a></h3>
+<h3>Winserv internals
+</h3>
+</div>
+<div class="page">If&nbsp;you want to&nbsp;write a&nbsp;<span
+ class="nobr">winserv-based</span>
+service in&nbsp;a scripting language other than TCL, you&nbsp;may want
+to&nbsp;implement helper modules, similar to&nbsp;TCL winserv support
+package.
+To&nbsp;do it, you&nbsp;have to&nbsp;know what escape sequences winserv
+interprets
+when the&nbsp;application writes to&nbsp;its standard output
+or&nbsp;the named pipe.<br>
+<br>
+Each string that winserv will parse must be&nbsp;terminated by&nbsp;a
+newline.
+If&nbsp;you use&nbsp;escape sequences, you&nbsp;must put&nbsp;each
+sequence on&nbsp;a line
+by&nbsp;itself.<br>
+<br>
+<table class="usertable" border="1">
+  <tbody>
+    <tr class="userrow">
+      <td class="usercell">\033 a</td>
+      <td class="usercell"><strong>accept/deny control codes: </strong></td>
+    </tr>
+    <tr class="userrow">
+      <td class="usercell">\033 a&nbsp;p</td>
+      <td class="usercell">accept pause/continue control codes</td>
+    </tr>
+    <tr class="userrow">
+      <td class="usercell">\033 a&nbsp;c</td>
+      <td class="usercell">accept PARAMCHANGE</td>
+    </tr>
+    <tr class="userrow">
+      <td class="usercell">\033 a&nbsp;s</td>
+      <td class="usercell">accept SHUTDOWN</td>
+    </tr>
+    <tr class="userrow">
+      <td class="usercell">\033 a&nbsp;n</td>
+      <td class="usercell">accept NETBIND... codes</td>
+    </tr>
+    <tr class="userrow">
+      <td class="usercell">\033 a&nbsp;r</td>
+      <td class="usercell">reset; accept STOP and&nbsp;nothing more</td>
+    </tr>
+    <tr class="userrow">
+      <td class="usercell">\033 a&nbsp;P </td>
+      <td class="usercell">don't accept pause/continue</td>
+    </tr>
+    <tr class="userrow">
+      <td class="usercell">\033 a&nbsp;C </td>
+      <td class="usercell">don't accept PARAMCHANGE</td>
+    </tr>
+    <tr class="userrow">
+      <td class="usercell">\033 a&nbsp;S </td>
+      <td class="usercell">don't accept SHUTDOWN</td>
+    </tr>
+    <tr class="userrow">
+      <td class="usercell">\033 a&nbsp;N </td>
+      <td class="usercell">don't accept NETBIND... codes</td>
+    </tr>
+    <tr class="userrow">
+      <td class="usercell">\033 s&nbsp;</td>
+      <td class="usercell"><strong>set service status</strong></td>
+    </tr>
+    <tr class="userrow">
+      <td class="usercell">\033 s&nbsp;p </td>
+      <td class="usercell">the service is&nbsp;now paused</td>
+    </tr>
+    <tr class="userrow">
+      <td class="usercell">\033 s&nbsp;P</td>
+      <td class="usercell">the service is&nbsp;going to&nbsp;pause
+(PAUSE_PENDING)</td>
+    </tr>
+    <tr class="userrow">
+      <td class="usercell">\033 s&nbsp;C</td>
+      <td class="usercell">the service is&nbsp;going to&nbsp;continue
+(CONTINUE_PENDING)</td>
+    </tr>
+    <tr class="userrow">
+      <td class="usercell">\033 s&nbsp;r </td>
+      <td class="usercell">the service is&nbsp;running</td>
+    </tr>
+    <tr class="userrow">
+      <td class="usercell">\033 s&nbsp;S</td>
+      <td class="usercell">the service is&nbsp;going to&nbsp;stop
+(STOP_PENDING)</td>
+    </tr>
+    <tr class="userrow">
+      <td class="usercell">\033 e&nbsp;</td>
+      <td class="usercell"><strong>add message to&nbsp;the event log:</strong></td>
+    </tr>
+    <tr class="userrow">
+      <td class="usercell">\033 e&nbsp;i </td>
+      <td class="usercell">at the&nbsp;information level</td>
+    </tr>
+    <tr class="userrow">
+      <td class="usercell">\033 e&nbsp;e </td>
+      <td class="usercell">at the&nbsp;error level</td>
+    </tr>
+    <tr class="userrow">
+      <td class="usercell">\033 e&nbsp;s </td>
+      <td class="usercell">at the&nbsp;success level</td>
+    </tr>
+    <tr class="userrow">
+      <td class="usercell">\033 e&nbsp;w </td>
+      <td class="usercell">at the&nbsp;warning level</td>
+    </tr>
+    <tr class="userrow">
+      <td class="usercell">\033 e&nbsp;a </td>
+      <td class="usercell">at the&nbsp;audit/success level</td>
+    </tr>
+    <tr class="userrow">
+      <td class="usercell">\033 e&nbsp;A </td>
+      <td class="usercell">at the&nbsp;audit/failure level</td>
+    </tr>
+  </tbody>
+</table>
+<br>
+For&nbsp;eventlog escapes, the&nbsp;message that will be&nbsp;added
+must follow
+the&nbsp;escape sequence on&nbsp;the same line. If&nbsp;the message
+contains embedded
+newlines, they must be&nbsp;replaced with \014 (form feed) control
+character.<br>
+<br>
+When winserv receives a&nbsp;control code from the&nbsp;service
+manager, it&nbsp;sends
+a&nbsp;line to&nbsp;the application's standard input. The&nbsp;line
+is&nbsp;just a&nbsp;name
+like STOP or&nbsp;CONTINUE. You&nbsp;can get&nbsp;all possible names
+if&nbsp;you remove
+leading SERVICE_CONTROL_ from macros used for&nbsp;the ControlService
+function. For&nbsp;the user control codes (1<span class="nobr">28&#8211;255</span>),
+one&nbsp;of&nbsp;CODE128..CODE255 will be&nbsp;sent.<br>
+<br>
+<br>
+<a name="h27-21"></a><br>
+<h3>Tcl-Specific notices</h3>
+</div>
+Porting <a href="http://wiki.tcl.tk/tcsvc" target="_blank" title=""
+ class="outerlink">tclsvc</a>-based
+applications to&nbsp;winserv is&nbsp;easy. You&nbsp;should install
+a&nbsp;winserv support
+package at&nbsp;a place where your interpreter can&nbsp;find it,
+and&nbsp;then add&nbsp;two
+lines of&nbsp;code at&nbsp;the beginning of&nbsp;your script:<br>
+<!--notypo--><textarea class="code" rows="3" readonly="readonly"
+    >package require winserv
+winserv::startup</textarea><!--/notypo--><br>
+Note that it&nbsp;won't prevent your script from being
+run&nbsp;by&nbsp;[tclsvc]: winserv support package checks <span
+ class="cite">tcl_service</span> global varible and&nbsp;doesn't
+try&nbsp;to&nbsp;connect winserv if&nbsp;the variable already exists.<br>
+<br>
+When running under winserv, <span class="cite">winserv::startup</span>
+command sets the&nbsp;<span class="cite">tcl_service</span> and&nbsp;<span
+ class="cite">tcl_service_winserv</span> global variables to&nbsp;1.
+It&nbsp;imports <span class="cite">eventlog</span> command into
+the&nbsp;global namespace. This command is&nbsp;a <span class="nobr">mostly-compatible</span>
+(though less powerful) replacement for&nbsp;the tclsvc's eventlog.
+It&nbsp;doesn't open the&nbsp;eventlog directly; instead, it&nbsp;uses
+the&nbsp;active
+IPC&nbsp;method to<br>
+pass messages to&nbsp;winserv.<br>
+<br>
+A&nbsp;lot of&nbsp;<span class="nobr">winserv-specific</span>
+facilities become available after winserv::startup.<br>
+<!--notypo--><textarea class="code" rows="2" readonly="readonly"
+    >winserv::accept ?[-]pause? ?[-]paramchange? ?[-]shutdown? ...</textarea><!--/notypo--><br>
+This command lets the&nbsp;application accept certain SCM&nbsp;control
+code
+groups.If the&nbsp;dash precedes the&nbsp;group name, it&nbsp;means
+that this group
+is&nbsp;not accepted any&nbsp;more.<br>
+<!--notypo--><textarea class="code" rows="2" readonly="readonly"
+    >winserv::accept reset</textarea><!--/notypo--><br>
+Use&nbsp;it&nbsp;to accept only the&nbsp;STOP code, as&nbsp;winserv
+does by&nbsp;default.<br>
+<!--notypo--><textarea class="code" rows="2" readonly="readonly"
+    >winserv::handle code script</textarea><!--/notypo--><br>
+This command defines a&nbsp;script to&nbsp;handle particular
+SCM&nbsp;control code
+(STOP, PAUSE, CONTINUE, PARAMCHANGE, NETBINDADD, NETBINDREMOVE,
+NETBINDDISABLE, NETBINDENABLE, as&nbsp;well as&nbsp;<span class="nobr">user-defined</span>
+codes CODE128..CODE255).<br>
+<br>
+For&nbsp;PAUSE and&nbsp;CONTINUE control codes the&nbsp;script
+can&nbsp;break or&nbsp;throw
+an&nbsp;error to&nbsp;indicate that the&nbsp;service status wasn't
+really changed (so
+it&nbsp;must leave running or&nbsp;paused, respectively).<br>
+<br>
+Use&nbsp;empty script argument to&nbsp;remove the&nbsp;handler.<br>
+<a name="h27-22"></a><br>
+<div class="header">
+<h3>Using winserv with console programs<br>
+</h3>
+</div>
+<div class="page">Unfortunately, applications for&nbsp;the console
+subsystem will almost
+always require some modification to&nbsp;survive logoff. It's only 7
+lines
+of&nbsp;C code or&nbsp;so, and&nbsp;you can&nbsp;see src/<span
+ class="nobr">tcl-nologoff</span>.c for&nbsp;an&nbsp;example.<br>
+<br>
+A&nbsp;lot of&nbsp;scripting language interpreters have a&nbsp;special
+variant
+of&nbsp;executable in&nbsp;their Windows versions: the&nbsp;executable
+is&nbsp;linked
+for&nbsp;the windows subsystem, not&nbsp;the console one, though
+it&nbsp;doesn't
+provide GUI&nbsp;per se. I&nbsp;recommend to&nbsp;use this kind
+of&nbsp;interpreters
+for&nbsp;your service, together with <span class="cite">-ipcmethod pipe</span>.<br>
+<br>
+As&nbsp;of TCL&nbsp;(tclsh*.exe console interpreter), nologoff.dll
+included
+in&nbsp;the winserv support package takes care of&nbsp;making
+the&nbsp;interpreter
+ready to&nbsp;survive logoff. Winserv::startup will load this dll.
+If&nbsp;you
+use&nbsp;<a href="http://wiki.tcl.tk/freewrap" target="_blank" title=""
+ class="outerlink">freewrap</a> to&nbsp;create a&nbsp;<span class="nobr">stand-alone</span>
+executable, you&nbsp;should copy this dll&nbsp;to&nbsp;the real
+filesystem and&nbsp;let the&nbsp;winserv support package know where
+it&nbsp;is:<br>
+<!--notypo--><textarea class="code" rows="4" readonly="readonly"
+    >package require winserv
+set winserv::nologoff_dll c:/Unwrapped/nologoff.dll
+winserv::startup</textarea><!--/notypo--><br>
+</div>
+<br>
+<br>
+</div>
+</body>
+</html>

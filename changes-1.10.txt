@@ -1,0 +1,22 @@
+2005-08-19 Winserv 1.10 released
+
+    * BUG FIXED:
+    Winserv used to crash after receiving some non-STOP signal
+    with -ipcmethod blind (e.g. when the service dependencies were changed)
+    Thank Ashok Singhal for pointing it out and providing a patch.
+
+    * IMPROVEMENT:
+    Winserv is trying more gentle shutdown method before TerminateProcess
+    with -ipcmethod blind. (TECHNICAL: it tries to post WM_QUIT message 
+    to the initial thread's queue of the underlying process, and if it's possible,
+    waits for 10 seconds allowing the process to exit gracefully).
+
+    * IMPROVEMENT:
+    Console applications now survive user's logout without additional effort.
+    (CREATE_NEW_PROCESS_GROUP flag was used to achieve this). The only exception
+    is the applications that set their own console Ctrl handler.
+
+    * BUILDING:
+    You may use GNU toolchain (MINGW32) to compile winserv.
+    It may be cross-compiled as well.
+
