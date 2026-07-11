@@ -1,4 +1,4 @@
-# Winserv 1.04 Introduction
+# Winserv Introduction
 
 ### Command-line overview
 
@@ -338,8 +338,12 @@ Use empty script argument to remove the handler.
 Winserv starts the managed application as a detached process — no
 console is created for it at all — so console-subsystem programs are
 not exposed to console control events on logoff and need no
-modification to survive it. (Historically the application was started
-with a hidden console, and a tiny nologoff.dll had to be loaded into
-console interpreters to ignore CTRL\_LOGOFF\_EVENT; that machinery is
-gone. A child that really wants a console can allocate one itself
-with AllocConsole.)
+modification to survive it. A child that really wants a console can
+allocate one itself with AllocConsole.
+
+*Historical note:* winserv used to start the application with a
+hidden console instead, which exposed console programs to
+CTRL\_LOGOFF\_EVENT on logoff; the package shipped a tiny
+nologoff.dll that console interpreters (tclsh) loaded to ignore that
+event. The detached start made this machinery unnecessary, and it
+was removed.
