@@ -98,20 +98,6 @@ reg_read(HKEY hkey, LPCTSTR vname, LPBYTE *val_ptr, BOOL autoexpand)
     return vtype;
 }
 
-/* Facilitate reading DWORD values. 
- * Default dflt is used when reg_read fails or returns wrong type */
-WSLINKAGE
-DWORD reg_read_dword(HKEY hkey, LPCTSTR vname, DWORD dflt ) {
-    DWORD *ret=NULL, result;
-    if (reg_read(hkey,vname,(LPBYTE*)&ret,FALSE)!=REG_DWORD)
-	result = dflt;
-    else
-	result = *ret;
-    if (ret) free(ret);
-    return result;
-}
-
-
 /* RegOpenKeyEx/RegCreateKeyEx/RegConnectRegistry wrapper */
 #define reg_close(hkey) RegCloseKey(hkey) // Just for consistency
 WSLINKAGE
@@ -191,7 +177,7 @@ FILE* fh_to_stream(HANDLE fh, int for_open, const char *for_fopen)
     int crfh;
     FILE *stream;
     if (!fh) return NULL;
-    crfh = _open_osfhandle((long)fh, for_open|_O_NOINHERIT);
+    crfh = _open_osfhandle((intptr_t)fh, for_open|_O_NOINHERIT);
     stream = fdopen(crfh, for_fopen);
     return stream;
 }
@@ -284,15 +270,6 @@ void * str_field_lookup(LPCTSTR what, void *where, int itemsize, int off)
 	    return cwhere;
     }
     return NULL;
-}
-
-/* Find the string in an array */
-WSLINKAGE
-int str_lookup(LPCTSTR what, LPCTSTR *where, int dfl)
-{
-    LPCTSTR *result = 
-	(LPCTSTR*)str_field_lookup(what, (void*)where, sizeof(LPCTSTR),0);
-    return result ? (result-where) : dfl ;
 }
 
 /* Remove final newline, if any */
@@ -445,20 +422,19 @@ static option_t name[]={
     OD_eoo }
 
 #define OD_string(txt,var) \
-    TEXT(txt),NULL,(LPVOID)cvtSTRING,NULL,&var,
+    {TEXT(txt),NULL,(LPVOID)cvtSTRING,NULL,&var},
 #define OD_stringtable(txt,var) \
-    TEXT(txt),NULL,(LPVOID)cvtSTRINGTABLE,NULL,&var,
+    {TEXT(txt),NULL,(LPVOID)cvtSTRINGTABLE,NULL,&var},
 #define OD_dword(txt,var) \
-    TEXT(txt),NULL,(LPVOID)cvtDWORD,NULL,&var,
+    {TEXT(txt),NULL,(LPVOID)cvtDWORD,NULL,&var},
 #define OD_true(txt,var) \
-    TEXT(txt),NULL,(LPVOID)cvtCONST,(LPVOID)TRUE,&var,
+    {TEXT(txt),NULL,(LPVOID)cvtCONST,(LPVOID)TRUE,&var},
 #define OD_false(txt,var) \
-    TEXT(txt),NULL,(LPVOID)cvtCONST,(LPVOID)FALSE,&var,
+    {TEXT(txt),NULL,(LPVOID)cvtCONST,(LPVOID)FALSE,&var},
 #define OD_choice(txt,var,kw,nature) \
-    TEXT(txt),TEXT(nature),(LPVOID)cvtCHOICE,(LPVOID)kw,&var,
-#define OD_terminator (LPCTSTR)TEXT("--"),0,NULL,NULL,NULL,
-#define OD_eoo NULL,0,NULL,NULL,NULL,NULL
-    ;
+    {TEXT(txt),TEXT(nature),(LPVOID)cvtCHOICE,(LPVOID)kw,&var},
+#define OD_terminator {(LPCTSTR)TEXT("--"),NULL,NULL,NULL,NULL},
+#define OD_eoo {NULL,NULL,NULL,NULL,NULL}
 
 static int cvtDWORD (option_t *opt, int *pargc, LPCTSTR **pargv)
 {
@@ -523,7 +499,7 @@ static int cvtSTRINGTABLE (option_t *opt, int *pargc, LPCTSTR **pargv)
 
 static int cvtCONST (option_t *opt, int *pargc, LPCTSTR **pargv)
 {
-    CVT_PUT(BOOL,(BOOL)opt->cvcd);
+    CVT_PUT(BOOL,(BOOL)(intptr_t)opt->cvcd);
     return 0;
 }
 
@@ -590,30 +566,30 @@ DWORD parse_options(int *pargc, LPTSTR **pargv, option_t **opts)
 
 WSLINKAGE
 keyword_t kw_starttype[]={
-    TEXT("auto"), SERVICE_AUTO_START,
-    TEXT("demand"), SERVICE_DEMAND_START,
-    TEXT("disabled"), SERVICE_DISABLED,
-    TEXT("boot"), SERVICE_BOOT_START,
-    TEXT("system"), SERVICE_SYSTEM_START,
-    NULL,0
+    {TEXT("auto"), SERVICE_AUTO_START},
+    {TEXT("demand"), SERVICE_DEMAND_START},
+    {TEXT("disabled"), SERVICE_DISABLED},
+    {TEXT("boot"), SERVICE_BOOT_START},
+    {TEXT("system"), SERVICE_SYSTEM_START},
+    {NULL, 0}
 };
 
 WSLINKAGE
 keyword_t kw_errorcontrol[]={
-    TEXT("ignore"), SERVICE_ERROR_IGNORE,
-    TEXT("normal"), SERVICE_ERROR_NORMAL,
-    TEXT("severe"), SERVICE_ERROR_SEVERE,
-    TEXT("critical"), SERVICE_ERROR_CRITICAL,
-    NULL,0
+    {TEXT("ignore"), SERVICE_ERROR_IGNORE},
+    {TEXT("normal"), SERVICE_ERROR_NORMAL},
+    {TEXT("severe"), SERVICE_ERROR_SEVERE},
+    {TEXT("critical"), SERVICE_ERROR_CRITICAL},
+    {NULL, 0}
 };
 
 WSLINKAGE
 keyword_t kw_ipcmethod[]={
-    TEXT("blind"), IPCMETHOD_BLIND,
-    TEXT("pipe"), IPCMETHOD_PIPE,
-    TEXT("stdio"), IPCMETHOD_STDIO,
-    TEXT("qstdio"), IPCMETHOD_QSTDIO,
-    NULL,0
+    {TEXT("blind"), IPCMETHOD_BLIND},
+    {TEXT("pipe"), IPCMETHOD_PIPE},
+    {TEXT("stdio"), IPCMETHOD_STDIO},
+    {TEXT("qstdio"), IPCMETHOD_QSTDIO},
+    {NULL, 0}
 };
 
 /* Global variables, for BOTH service and utility */
@@ -837,9 +813,8 @@ WSLINKAGE VOID WINAPI sv_ctrl(DWORD dwCtrlCode)
 
 WSLINKAGE VOID sv_start(DWORD argc, LPTSTR *argv)
 {
-    reg_read_param() &&
-    start_process() &&
-    main_loop();
+    if (reg_read_param() && start_process())
+	main_loop();
 }
 
 WSLINKAGE BOOL reg_read_param()
@@ -1098,7 +1073,6 @@ WSLINKAGE VOID puts_control()
 {
     LPTSTR ctlname=NULL;
     TCHAR ctbuff[32];
-    DWORD bwritten = 0;
 
     if ((!ipc_write_stream) && (control_code==SERVICE_CONTROL_STOP)) 
     {
@@ -1134,7 +1108,7 @@ WSLINKAGE VOID puts_control()
 	default: _sntprintf(ctbuff,32,TEXT("CODE%u"),control_code);
 	    ctlname = ctbuff;
     }
-    bwritten = _ftprintf(ipc_write_stream,TEXT("%s\n"),ctlname);
+    _ftprintf(ipc_write_stream,TEXT("%s\n"),ctlname);
     fflush(ipc_write_stream);
 }
 
@@ -1208,26 +1182,26 @@ static option_t
     ;
 
 static keyword_t kw_commands[]={
-    TEXT("-help"), CMD_HELP, 
-    TEXT("help"), CMD_HELP, 
-    TEXT("--help"), CMD_HELP, 
-    TEXT("-?"), CMD_HELP, 
-    TEXT("/?"), CMD_HELP, 
-    TEXT("/help"), CMD_HELP, 
-    TEXT("install"), CMD_INSTALL,
-    TEXT("uninstall"), CMD_UNINSTALL,
-    TEXT("start"), CMD_START,
-    TEXT("stop"), CMD_STOP,
-    TEXT("pause"), CMD_PAUSE,
-    TEXT("continue"), CMD_CONTINUE,
-    TEXT("paramchange"), CMD_PARAMCHANGE,
-    TEXT("usercontrol"), CMD_USERCONTROL,
-    TEXT("restart"), CMD_RESTART,
-    TEXT("status"), CMD_STATUS,
-    TEXT("configure"), CMD_CONFIGURE,
-    TEXT("show"), CMD_SHOW,
-    TEXT("showconfig"), CMD_SHOW,
-    NULL, 0
+    {TEXT("-help"), CMD_HELP},
+    {TEXT("help"), CMD_HELP},
+    {TEXT("--help"), CMD_HELP},
+    {TEXT("-?"), CMD_HELP},
+    {TEXT("/?"), CMD_HELP},
+    {TEXT("/help"), CMD_HELP},
+    {TEXT("install"), CMD_INSTALL},
+    {TEXT("uninstall"), CMD_UNINSTALL},
+    {TEXT("start"), CMD_START},
+    {TEXT("stop"), CMD_STOP},
+    {TEXT("pause"), CMD_PAUSE},
+    {TEXT("continue"), CMD_CONTINUE},
+    {TEXT("paramchange"), CMD_PARAMCHANGE},
+    {TEXT("usercontrol"), CMD_USERCONTROL},
+    {TEXT("restart"), CMD_RESTART},
+    {TEXT("status"), CMD_STATUS},
+    {TEXT("configure"), CMD_CONFIGURE},
+    {TEXT("show"), CMD_SHOW},
+    {TEXT("showconfig"), CMD_SHOW},
+    {NULL, 0}
 };
 
 
@@ -1590,29 +1564,29 @@ WSLINKAGE int util_main(int argc, LPTSTR *argv)
     TCHAR unqImage[MAX_PATH+1];
 
     struct { DWORD cmd,ascm,asvc; option_t ** cmdo;} util_acl_map[] = {
-	CMD_INSTALL,    SC_MANAGER_CREATE_SERVICE,	0,	cmdo_install,
-	CMD_UNINSTALL,  STANDARD_RIGHTS_READ,	DELETE,	cmdo_uninstall,
-	CMD_START,	    STANDARD_RIGHTS_READ,	
-	    SERVICE_START|SERVICE_QUERY_STATUS,		cmdo_start,
-	CMD_STOP,	    STANDARD_RIGHTS_READ,
-	    SERVICE_STOP|SERVICE_QUERY_STATUS,		cmdo_stop,
-	CMD_PAUSE,	    STANDARD_RIGHTS_READ,	
-	    SERVICE_PAUSE_CONTINUE|SERVICE_QUERY_STATUS,	cmdo_pause,
-	CMD_CONTINUE,   STANDARD_RIGHTS_READ,	
-	    SERVICE_PAUSE_CONTINUE|SERVICE_QUERY_STATUS,	cmdo_continue,
-	CMD_PARAMCHANGE, STANDARD_RIGHTS_READ,	
-	    SERVICE_PAUSE_CONTINUE|SERVICE_QUERY_STATUS,	cmdo_paramchange,
-	CMD_USERCONTROL, STANDARD_RIGHTS_READ,	
-	    SERVICE_USER_DEFINED_CONTROL,			cmdo_usercontrol,
-	CMD_RESTART, STANDARD_RIGHTS_READ,	
-	    SERVICE_STOP|SERVICE_START|SERVICE_QUERY_STATUS,cmdo_restart,
-	CMD_STATUS, STANDARD_RIGHTS_READ,		
-	    SERVICE_QUERY_STATUS,				cmdo_status,
-	CMD_CONFIGURE, STANDARD_RIGHTS_READ,		
-	    SERVICE_CHANGE_CONFIG|SERVICE_QUERY_CONFIG,	cmdo_configure,
-	CMD_SHOW, STANDARD_RIGHTS_READ,		
-	    SERVICE_QUERY_CONFIG,	cmdo_show,
-	0,0,0,0
+	{CMD_INSTALL,    SC_MANAGER_CREATE_SERVICE,	0,	cmdo_install},
+	{CMD_UNINSTALL,  STANDARD_RIGHTS_READ,	DELETE,	cmdo_uninstall},
+	{CMD_START,	    STANDARD_RIGHTS_READ,	
+	    SERVICE_START|SERVICE_QUERY_STATUS,		cmdo_start},
+	{CMD_STOP,	    STANDARD_RIGHTS_READ,
+	    SERVICE_STOP|SERVICE_QUERY_STATUS,		cmdo_stop},
+	{CMD_PAUSE,	    STANDARD_RIGHTS_READ,	
+	    SERVICE_PAUSE_CONTINUE|SERVICE_QUERY_STATUS,	cmdo_pause},
+	{CMD_CONTINUE,   STANDARD_RIGHTS_READ,	
+	    SERVICE_PAUSE_CONTINUE|SERVICE_QUERY_STATUS,	cmdo_continue},
+	{CMD_PARAMCHANGE, STANDARD_RIGHTS_READ,	
+	    SERVICE_PAUSE_CONTINUE|SERVICE_QUERY_STATUS,	cmdo_paramchange},
+	{CMD_USERCONTROL, STANDARD_RIGHTS_READ,	
+	    SERVICE_USER_DEFINED_CONTROL,			cmdo_usercontrol},
+	{CMD_RESTART, STANDARD_RIGHTS_READ,	
+	    SERVICE_STOP|SERVICE_START|SERVICE_QUERY_STATUS,cmdo_restart},
+	{CMD_STATUS, STANDARD_RIGHTS_READ,		
+	    SERVICE_QUERY_STATUS,				cmdo_status},
+	{CMD_CONFIGURE, STANDARD_RIGHTS_READ,		
+	    SERVICE_CHANGE_CONFIG|SERVICE_QUERY_CONFIG,	cmdo_configure},
+	{CMD_SHOW, STANDARD_RIGHTS_READ,		
+	    SERVICE_QUERY_CONFIG,	cmdo_show},
+	{0,0,0,0}
     };
     setlocale(LC_ALL,"C");
     bound_argv = util_bind_argv(argc,_tcsdup(GetCommandLine()));
