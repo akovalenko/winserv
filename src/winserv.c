@@ -871,7 +871,7 @@ WSLINKAGE BOOL start_process()
     SetEnvironmentVariable(TEXT("ServiceIpcMethod"),ipc_method_name);
     ipc_setup(0);
     if (!CreateProcess(NULL,command_line, NULL, NULL, TRUE, 
-		CREATE_NEW_PROCESS_GROUP|CREATE_NO_WINDOW,
+		CREATE_NEW_PROCESS_GROUP|DETACHED_PROCESS,
 		NULL, NULL, &sinfo, &pinfo))
     {
 	/* we might end up with redirected std handles, but it's okey 
