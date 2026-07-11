@@ -20,6 +20,10 @@
 #define _UNICODE 1
 #endif
 
+#define WINSERV_VERSION TEXT("1.11")
+#define WINSERV_BANNER \
+    TEXT("WinServ %s (c) 2004-2006 Anton Kovalenko / Sw4me.com\n")
+
 #define WSLINKAGE static
 #include <tchar.h>
 #include <windows.h>
@@ -1611,6 +1615,7 @@ WSLINKAGE int util_main(int argc, LPTSTR *argv)
 	case -1234:
 	    _ftprintf(stderr,TEXT("Bad command %s\n"), cmdkw); return 1;
 	case CMD_HELP:
+	    _tprintf(WINSERV_BANNER,WINSERV_VERSION);
 	    _tprintf(TEXT("%S"),USAGE); return 0;
     }
 

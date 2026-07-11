@@ -1,5 +1,4 @@
 "\
-WinServ 1.11 (c) 2004-2006 Anton Kovalenko / Sw4me.com\n\
 LICENSE: Do what you want with this software, but don't blame me.\n\
 \n\
 Available subcommands: \n\
