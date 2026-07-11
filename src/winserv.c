@@ -1504,7 +1504,12 @@ WSLINKAGE BOOL util_show()
     if (!tqsc) return FALSE;
 
     con_ftprintf(stdout,TEXT("Configuration of %s:\n"),sv_name);
-    if ((dptr=tqsc->lpDependencies)) {
+    /* A multi-sz ends at its first empty string. An empty list may be
+     * a lone NUL packed tightly against the next string in the buffer
+     * (seen with Wine's QueryServiceConfig), so entering the comma
+     * conversion below would run past it into the neighbour strings.
+     * */
+    if ((dptr=tqsc->lpDependencies) && dptr[0]) {
 	for (;dptr[0]||dptr[1];++dptr) {
 	    if (!dptr[0]) dptr[0]=TEXT(',');
 	}
