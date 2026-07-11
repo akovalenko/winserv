@@ -3,7 +3,10 @@ UTIL_PREFIX=
 CC=$(UTIL_PREFIX)gcc
 MC=
 RC=$(UTIL_PREFIX)windres
-CFLAGS=-Os -O2 -DUNICODE=1 -fomit-frame-pointer -Wall -Dwchar_t=short -owinserv.exe
+# __USE_MINGW_ANSI_STDIO=0: the code uses MSVC printf conventions
+# (%s means a wide string inside wide-char formats); mingw-w64's C99
+# replacements would treat %s as narrow and truncate every string.
+CFLAGS=-Os -O2 -DUNICODE=1 -D__USE_MINGW_ANSI_STDIO=0 -fomit-frame-pointer -Wall -owinserv.exe
 LDFLAGS=-ladvapi32 -luser32
 else
 CC=cl

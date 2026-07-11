@@ -871,7 +871,7 @@ WSLINKAGE BOOL start_process()
     SetEnvironmentVariable(TEXT("ServiceIpcMethod"),ipc_method_name);
     ipc_setup(0);
     if (!CreateProcess(NULL,command_line, NULL, NULL, TRUE, 
-		CREATE_NEW_PROCESS_GROUP|CREATE_NO_WINDOW, 
+		CREATE_NEW_PROCESS_GROUP|CREATE_NO_WINDOW,
 		NULL, NULL, &sinfo, &pinfo))
     {
 	/* we might end up with redirected std handles, but it's okey 
@@ -1131,7 +1131,7 @@ WSLINKAGE VOID puts_control()
 	case SERVICE_CONTROL_NETBINDDISABLE: ctlname = TEXT("NETBINDDISABLE"); break;
 	case SERVICE_CONTROL_NETBINDENABLE: ctlname = TEXT("NETBINDENABLE"); break;
 	case SERVICE_CONTROL_PARAMCHANGE:   ctlname = TEXT("PARAMCHANGE"); break;
-	default: _stprintf(ctbuff,TEXT("CODE%u"),control_code);
+	default: _sntprintf(ctbuff,32,TEXT("CODE%u"),control_code);
 	    ctlname = ctbuff;
     }
     bwritten = _ftprintf(ipc_write_stream,TEXT("%s\n"),ctlname);
@@ -1618,7 +1618,7 @@ WSLINKAGE int util_main(int argc, LPTSTR *argv)
     bound_argv = util_bind_argv(argc,_tcsdup(GetCommandLine()));
     setlocale(LC_ALL,"");
     GetModuleFileName(NULL,unqImage,MAX_PATH);
-    _stprintf(image,TEXT("\"%s\""),unqImage);
+    _sntprintf(image,MAX_PATH+3,TEXT("\"%s\""),unqImage);
     /* defaults */
     qsc.dwStartType = SERVICE_DEMAND_START;
     qsc.dwErrorControl = SERVICE_ERROR_NORMAL;
