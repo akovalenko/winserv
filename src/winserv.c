@@ -20,9 +20,9 @@
 #define _UNICODE 1
 #endif
 
-#define WINSERV_VERSION TEXT("1.11")
+#define WINSERV_VERSION TEXT("1.12")
 #define WINSERV_BANNER \
-    TEXT("WinServ %s (c) 2004-2006 Anton Kovalenko / Sw4me.com\n")
+    TEXT("WinServ %s (c) 2004-2026 Anton Kovalenko / Sw4me.com\n")
 
 #define WSLINKAGE static
 #include <tchar.h>

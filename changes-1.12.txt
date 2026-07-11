@@ -1,0 +1,36 @@
+2026-07-11 Winserv 1.12 released
+
+    NOTE: starting with this release winserv is maintained in a git
+    repository, and this file closes the changes-*.txt series. For
+    everything after 1.12, consult the git history.
+
+    * IMPROVEMENT:
+    The managed application is started as a detached process (no
+    console is created at all) instead of getting a hidden console.
+    Console applications are thus never exposed to console control
+    events on logoff, and the whole nologoff.dll workaround is gone:
+    the DLL is not built or shipped anymore, and winserv.tcl no
+    longer loads it.
+
+    * BUG FIXED:
+    showconfig used to garble its -depends and -user output when the
+    service configuration came back with an empty dependencies list
+    packed tightly against the neighbour strings in the buffer
+    (observed under Wine, whose services return no dependencies).
+
+    * BUG FIXED:
+    Two pointer truncations affecting 64-bit builds: the stdio IPC
+    handle passed to _open_osfhandle through (long), and the
+    constant-option value extracted from a pointer with a plain
+    (BOOL) cast.
+
+    * BUILDING:
+    Builds warning-free with modern mingw-w64, both 32- and 64-bit
+    (i686-w64-mingw32 / x86_64-w64-mingw32). The old wchar_t hack is
+    gone, _stprintf misuse is fixed, and the mingw build pins msvcrt
+    printf semantics with __USE_MINGW_ANSI_STDIO=0.
+
+    * DOCUMENTATION:
+    README converted to markdown (README.md). The version number is
+    printed from a single define (WINSERV_VERSION) instead of being
+    hardcoded in the usage text.
