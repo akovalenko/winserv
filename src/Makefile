@@ -40,11 +40,6 @@ ifdef USE_MINGW
 endif
 	cp -f winserv.exe ../winserv.exe
 
-nologoff.dll: tcl-nologoff.c
-	$(CC) $(CFLAGS) /LD tcl-nologoff.c /Fenologoff.dll \
-	/link /EXPORT:Nologoff_Init
-	cp -f nologoff.dll ../tcl/nologoff.dll
-
 usage.h: usage.txt Makefile
 	echo "\"\\" >"$@"
 	perl -n -p -e 's/\\/\\\\/g;s/$$/\\n\\/' <"$<" >>"$@"

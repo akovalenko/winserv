@@ -10,17 +10,13 @@
 package provide winserv 1.0
 package provide eventlog 2.00
 
-namespace eval winserv {
-    set nologoff_dll [file join [pwd] [file dirname [info script]] nologoff.dll]
-}
+namespace eval winserv {}
 
 proc winserv::init {} {
     global tcl_service tcl_service_winserv env
-    variable sv_name 
-    variable ipcs 
-    variable nologoff_dll
+    variable sv_name
+    variable ipcs
 
-    if {![llength [info commands ::console]]} { load $nologoff_dll }
     set tcl_service 1
     set tcl_service_winserv 1
 

@@ -335,26 +335,11 @@ Use empty script argument to remove the handler.
 
 ### Using winserv with console programs  
 
-Unfortunately, applications for the console subsystem will almost always
-require some modification to survive logoff. It's only 7 lines of C code
-or so, and you can see src/tcl-nologoff.c
-for an example.  
-  
-A lot of scripting language interpreters have a special variant
-of executable in their Windows versions: the executable is linked
-for the windows subsystem, not the console one, though it doesn't
-provide GUI per se. I recommend to use this kind of interpreters
-for your service, together with *-ipcmethod
-pipe*.  
-  
-As of TCL (tclsh\*.exe console interpreter), nologoff.dll included
-in the winserv support package takes care of making the interpreter
-ready to survive logoff. Winserv::startup will load this dll. If you
-use [freewrap](http://wiki.tcl.tk/freewrap) to create
-a stand-alone executable, you should copy
-this dll to the real filesystem and let the winserv support package know
-where it is:  
-
-    package require winserv
-    set winserv::nologoff_dll c:/Unwrapped/nologoff.dll
-    winserv::startup
+Winserv starts the managed application as a detached process — no
+console is created for it at all — so console-subsystem programs are
+not exposed to console control events on logoff and need no
+modification to survive it. (Historically the application was started
+with a hidden console, and a tiny nologoff.dll had to be loaded into
+console interpreters to ignore CTRL\_LOGOFF\_EVENT; that machinery is
+gone. A child that really wants a console can allocate one itself
+with AllocConsole.)
