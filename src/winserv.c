@@ -36,6 +36,7 @@
 #include <locale.h>
 #include <fcntl.h>
 #include <stdarg.h>
+#include <stddef.h>
 
 /* The code follows the MSVC printf convention: %s inside wide-char
  * formats means a wide string.  mingw-w64's C99 stdio replacements
@@ -265,8 +266,6 @@ VOID fh_async_fgets_terminate(async_fgets_t *afg) { if (afg) {
 
 /* SUBSECTION: strings */
 
-#define offsetof(s,i) \
-((char*)&((s*)NULL)->i-(char*)NULL)
 /* Find the array element that contains a pointer to the given string
  * at a given offset. This function may be used to find a structure
  * in an array.
