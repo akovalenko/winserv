@@ -36,7 +36,18 @@
 #include <locale.h>
 #include <fcntl.h>
 #include <stdarg.h>
-char USAGE[]= 
+
+/* The code follows the MSVC printf convention: %s inside wide-char
+ * formats means a wide string.  mingw-w64's C99 stdio replacements
+ * treat %s as narrow there, truncating every string to its first
+ * character, and they auto-enable in C99-and-later modes; a build
+ * without the Makefile's -D__USE_MINGW_ANSI_STDIO=0 miscompiles
+ * silently.  (UCRT is fine: it keeps the legacy wide-%s semantics.) */
+#if defined(__MINGW32__) && __USE_MINGW_ANSI_STDIO
+#error "winserv needs MSVC printf conventions: build with -D__USE_MINGW_ANSI_STDIO=0 (see src/Makefile)"
+#endif
+
+char USAGE[]=
 #include "usage.h"
 ;
 
