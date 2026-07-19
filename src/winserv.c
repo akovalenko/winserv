@@ -27,7 +27,6 @@
 #define WSLINKAGE static
 #include <tchar.h>
 #include <windows.h>
-#include <ctype.h>
 #include <process.h>
 #include <io.h>
 
@@ -1254,6 +1253,12 @@ WSLINKAGE void util_decompose_name(LPTSTR name)
     sv_name=name+i+1;
 }
 
+/* Argument delimiters of CommandLineToArgvW and the CRT parser, whose
+ * argc we re-trace in util_bind_argv: space and tab, nothing else.
+ * Locale-aware isspace() would diverge from them, and is undefined for
+ * wchar_t values above 255 anyway. */
+#define IS_ARG_DELIM(c) ((c) == TEXT(' ') || (c) == TEXT('\t'))
+
 /*
  * For each command line argument, finds a place in the command line
  * where it begins. Returns malloc'ed array of pointers to those places.
@@ -1268,7 +1273,7 @@ WSLINKAGE LPTSTR * util_bind_argv(int org_argc, LPTSTR cmdLine)
     argv = calloc(org_argc+2, sizeof(LPTSTR));
     for (argc = 0; argc < org_argc; argc++) {
 	// skip spaces
-	while (isspace(*p)) { p++; }
+	while (IS_ARG_DELIM(*p)) { p++; }
 	if (*p == TEXT('\0')) { break; }
 	inquote = 0; slashes = 0;
 	// we found where the argument begins
@@ -1290,7 +1295,7 @@ WSLINKAGE LPTSTR * util_bind_argv(int org_argc, LPTSTR cmdLine)
                 slashes >>= 1;
             }
 	    slashes=0;
-	    if ((*p == TEXT('\0')) || (!inquote && isspace(*p))) {
+	    if ((*p == TEXT('\0')) || (!inquote && IS_ARG_DELIM(*p))) {
 		break;
 	    }
 	    p++;
