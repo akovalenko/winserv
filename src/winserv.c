@@ -1631,7 +1631,9 @@ WSLINKAGE int util_main(int argc, LPTSTR *argv)
 	    _ftprintf(stderr,TEXT("Bad command %s\n"), cmdkw); return 1;
 	case CMD_HELP:
 	    _tprintf(WINSERV_BANNER,WINSERV_VERSION);
-	    _tprintf(TEXT("%S"),USAGE); return 0;
+	    /* USAGE is narrow in both TCHAR builds; %S would flip its
+	     * meaning to wide in an ANSI build, so no printf here. */
+	    fputs(USAGE,stdout); return 0;
     }
 
     if (!sv_name) {
